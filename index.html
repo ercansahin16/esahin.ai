@@ -23,6 +23,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 15px;
         }
 
         .header h1 {
@@ -73,12 +74,27 @@
             background: #8ecb2a;
         }
 
+        .clear-btn {
+            background: transparent;
+            color: #667788;
+            border: 1px solid #2a3a4a;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .clear-btn:hover {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
         .main-container {
             display: flex;
             flex: 1;
             padding: 20px 40px;
             gap: 30px;
-            max-height: calc(100vh - 120px);
+            max-height: calc(100vh - 140px);
         }
 
         .chat-area {
@@ -236,19 +252,13 @@
             padding: 10px;
         }
 
-        .clear-btn {
-            background: transparent;
-            color: #667788;
-            border: 1px solid #2a3a4a;
-            padding: 6px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s;
-        }
-        .clear-btn:hover {
-            border-color: #ff4444;
-            color: #ff4444;
+        .error-box {
+            background: #3a1a1a;
+            border: 1px solid #6a2a2a;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: #ff8888;
+            margin: 10px 0;
         }
 
         @media (max-width: 768px) {
@@ -276,7 +286,7 @@
 <div class="header">
     <h1>🚀 NVIDIA NIM <small>Ücretsiz AI Modelleri</small></h1>
     <div class="model-selector">
-        <select id="modelSelect">
+        <select id="modelSelect" onchange="updateModelInfo()">
             {% for model in models %}
             <option value="{{ model.id }}" {% if loop.first %}selected{% endif %}>
                 {{ model.name }} - {{ model.aciklama[:40] }}...
@@ -299,9 +309,9 @@
     <div class="model-info" id="modelInfo">
         <h3>📋 Model Bilgisi</h3>
         <div id="modelDetails">
-            <div class="detail"><strong>Ad:</strong> <span id="infoName">-</span></div>
-            <div class="detail"><strong>Açıklama:</strong> <span id="infoDesc">-</span></div>
-            <div class="detail"><strong>Özellik:</strong> <span id="infoFeature">-</span></div>
+            <div class="detail"><strong>Ad:</strong> <span id="infoName">Yükleniyor...</span></div>
+            <div class="detail"><strong>Açıklama:</strong> <span id="infoDesc">Yükleniyor...</span></div>
+            <div class="detail"><strong>Özellik:</strong> <span id="infoFeature">Yükleniyor...</span></div>
         </div>
         <div class="stats">
             ⚡ Hız sınırı: 40 istek/dk | 📊 Ücretsiz
@@ -310,32 +320,86 @@
 </div>
 
 <script>
+    // 📌 JavaScript kodunu buraya alalım
     let isStreaming = false;
     let currentModel = document.getElementById('modelSelect').value;
 
-    // Model değişince bilgileri güncelle
-    document.getElementById('modelSelect').addEventListener('change', function() {
-        currentModel = this.value;
-        updateModelInfo();
-    });
-
+    // Model bilgilerini güncelle - FONKSİYONU DÜZELTELİM
     function updateModelInfo() {
         const select = document.getElementById('modelSelect');
-        const selected = select.options[select.selectedIndex];
-        // Model detaylarını almak için API'den çekebiliriz
-        fetch('/api/models')
-            .then(res => res.json())
-            .then(data => {
-                const model = data.models.find(m => m.id === currentModel);
-                if (model) {
-                    document.getElementById('infoName').textContent = model.name;
-                    document.getElementById('infoDesc').textContent = model.aciklama;
-                    document.getElementById('infoFeature').textContent = model.ozellik || '-';
-                }
-            });
+        currentModel = select.value;
+        
+        // Seçili option'dan metin alalım
+        const selectedOption = select.options[select.selectedIndex];
+        const optionText = selectedOption.text;
+        
+        // Model bilgilerini göster (JavaScript ile manuel eşleştirme)
+        const models = {
+            "moonshotai/kimi-k2.6": {
+                name: "Kimi K2.6",
+                desc: "1T multimodal MoE - Kodlama ve aracı işlemler",
+                feature: "Mükemmel kodlama, 262K bağlam"
+            },
+            "deepseek-ai/deepseek-v4-flash": {
+                name: "DeepSeek V4 Flash",
+                desc: "284B MoE - Hızlı kodlama",
+                feature: "Hızlı yanıt, 1M bağlam"
+            },
+            "deepseek-ai/deepseek-v4-pro": {
+                name: "DeepSeek V4 Pro",
+                desc: "MoE mimarili kodlama modeli",
+                feature: "1M bağlam, yüksek kalite"
+            },
+            "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning": {
+                name: "Nemotron 3 Nano Omni",
+                desc: "Görüntü/video/ses anlama + akıl yürütme",
+                feature: "Multimodal, reasoning"
+            },
+            "nvidia/nemotron-3-ultra-550b-a55b": {
+                name: "Nemotron 3 Ultra",
+                desc: "1M bağlam, aracı akıl yürütme",
+                feature: "En güçlü NVIDIA modeli"
+            },
+            "mistralai/mistral-medium-3.5-128b": {
+                name: "Mistral Medium 3.5",
+                desc: "Dengeli performans, kodlama",
+                feature: "Genel amaçlı"
+            },
+            "google/diffusiongemma-26b-a4b-it": {
+                name: "Diffusion Gemma 26B",
+                desc: "Difüzyon tabanlı LLM",
+                feature: "Paralel token üretimi"
+            },
+            "z-ai/glm-5.2": {
+                name: "GLM 5.2",
+                desc: "Aracı iş akışları ve kodlama",
+                feature: "Agentic AI"
+            },
+            "minimaxai/minimax-m3": {
+                name: "MiniMax M3",
+                desc: "Multimodal MoE, kodlama",
+                feature: "Görüntü anlama"
+            },
+            "nvidia/nemotron-3-embed-1b": {
+                name: "Nemotron 3 Embed 1B",
+                desc: "Embedding model - RAG ve arama",
+                feature: "Semantik arama"
+            }
+        };
+
+        const model = models[currentModel];
+        if (model) {
+            document.getElementById('infoName').textContent = model.name;
+            document.getElementById('infoDesc').textContent = model.desc;
+            document.getElementById('infoFeature').textContent = model.feature;
+        } else {
+            document.getElementById('infoName').textContent = "Bilinmiyor";
+            document.getElementById('infoDesc').textContent = "Model bilgisi yüklenemedi";
+            document.getElementById('infoFeature').textContent = "-";
+        }
     }
 
-    // Enter tuşu ile gönder (Shift+Enter satır atlar)
+    // Enter tuşu ile gönder
     document.getElementById('userInput').addEventListener('keydown', function(e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -345,20 +409,17 @@
 
     function clearChat() {
         document.getElementById('messages').innerHTML = '';
-        const info = document.createElement('div');
-        info.className = 'message assistant';
-        info.innerHTML = `<div class="role">🤖 Asistan</div>
-                         <div class="content">Sohbet temizlendi. Yeni bir konuşmaya başlayabilirsiniz.</div>`;
-        document.getElementById('messages').appendChild(info);
+        addMessage('assistant', '🗑️ Sohbet temizlendi. Yeni bir konuşmaya başlayabilirsiniz.');
     }
 
     function addMessage(role, content) {
+        const messagesDiv = document.getElementById('messages');
         const div = document.createElement('div');
         div.className = `message ${role}`;
         const roleText = role === 'user' ? '👤 Siz' : '🤖 Asistan';
         div.innerHTML = `<div class="role">${roleText}</div><div class="content">${content}</div>`;
-        document.getElementById('messages').appendChild(div);
-        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        messagesDiv.appendChild(div);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
     async function sendMessage() {
@@ -368,7 +429,6 @@
         const message = input.value.trim();
         if (!message) return;
 
-        // Kullanıcı mesajını ekle
         addMessage('user', message);
         input.value = '';
         input.style.height = 'auto';
@@ -386,9 +446,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     model: model,
-                    messages: [
-                        { role: 'user', content: message }
-                    ],
+                    messages: [{ role: 'user', content: message }],
                     stream: false,
                     temperature: 0.7,
                     max_tokens: 2048
@@ -400,8 +458,7 @@
             if (data.error) {
                 addMessage('assistant', `❌ Hata: ${data.error}`);
             } else if (data.choices && data.choices[0]) {
-                const content = data.choices[0].message.content;
-                addMessage('assistant', content);
+                addMessage('assistant', data.choices[0].message.content);
             } else {
                 addMessage('assistant', '❌ Beklenmeyen yanıt formatı');
             }
@@ -416,7 +473,7 @@
         input.focus();
     }
 
-    // İlk mesaj
+    // Sayfa yüklendiğinde
     window.onload = function() {
         updateModelInfo();
         addMessage('assistant', `👋 Merhaba! NVIDIA NIM ücretsiz API'sine hoş geldiniz.
