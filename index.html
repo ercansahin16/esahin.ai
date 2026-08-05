@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NVIDIA NIM - Tüm Modeller</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e17;
+            color: #e0e7f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a2a3a, #0d1b2a);
+            padding: 20px 40px;
+            border-bottom: 1px solid #2a3a4a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header h1 {
+            color: #76b900;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .header h1 small {
+            font-size: 14px;
+            color: #8899aa;
+            font-weight: 400;
+        }
+
+        .model-selector {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .model-selector select {
+            background: #1a2a3a;
+            color: #e0e7f0;
+            border: 1px solid #2a4a6a;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 280px;
+            cursor: pointer;
+            outline: none;
+        }
+        .model-selector select:hover {
+            border-color: #76b900;
+        }
+
+        .model-selector button {
+            background: #76b900;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .model-selector button:hover {
+            background: #8ecb2a;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 20px 40px;
+            gap: 30px;
+            max-height: calc(100vh - 120px);
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #0d1b2a;
+            border-radius: 12px;
+            border: 1px solid #1a2a3a;
+            overflow: hidden;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            min-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            max-width: 85%;
+            animation: fadeIn 0.3s;
+        }
+
+        .message.user {
+            background: #1a3a5a;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant {
+            background: #1a2a3a;
+            border: 1px solid #2a4a6a;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message .role {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .message .content {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .message .content code {
+            background: #0a1a2a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            background: #0a1a2a;
+            border-top: 1px solid #1a2a3a;
+        }
+
+        .input-area textarea {
+            flex: 1;
+            background: #1a2a3a;
+            color: #e0e7f0;
+            border: 1px solid #2a4a6a;
+            border-radius: 8px;
+            padding: 12px;
+            resize: none;
+            font-size: 14px;
+            min-height: 60px;
+            max-height: 120px;
+            outline: none;
+            font-family: inherit;
+        }
+        .input-area textarea:focus {
+            border-color: #76b900;
+        }
+
+        .input-area button {
+            background: #76b900;
+            color: #fff;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            align-self: flex-end;
+            height: 50px;
+            min-width: 100px;
+        }
+        .input-area button:hover {
+            background: #8ecb2a;
+        }
+        .input-area button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .model-info {
+            background: #0d1b2a;
+            border-radius: 12px;
+            border: 1px solid #1a2a3a;
+            padding: 20px;
+            min-width: 250px;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .model-info h3 {
+            color: #76b900;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .model-info .detail {
+            font-size: 13px;
+            color: #8899aa;
+            padding: 6px 0;
+            border-bottom: 1px solid #1a2a3a;
+        }
+        .model-info .detail strong {
+            color: #c0d0e0;
+        }
+
+        .stats {
+            margin-top: auto;
+            font-size: 12px;
+            color: #667788;
+            padding-top: 10px;
+            border-top: 1px solid #1a2a3a;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .typing {
+            color: #667788;
+            font-style: italic;
+            padding: 10px;
+        }
+
+        .clear-btn {
+            background: transparent;
+            color: #667788;
+            border: 1px solid #2a3a4a;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        .clear-btn:hover {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                padding: 10px;
+                max-height: none;
+            }
+            .model-info {
+                max-width: 100%;
+                min-width: auto;
+                order: -1;
+            }
+            .model-selector select {
+                min-width: 180px;
+            }
+            .header {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🚀 NVIDIA NIM <small>Ücretsiz AI Modelleri</small></h1>
+    <div class="model-selector">
+        <select id="modelSelect">
+            {% for model in models %}
+            <option value="{{ model.id }}" {% if loop.first %}selected{% endif %}>
+                {{ model.name }} - {{ model.aciklama[:40] }}...
+            </option>
+            {% endfor %}
+        </select>
+        <button onclick="clearChat()" class="clear-btn">🗑️ Temizle</button>
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="chat-area">
+        <div class="messages" id="messages"></div>
+        <div class="input-area">
+            <textarea id="userInput" placeholder="Mesajınızı yazın... (Enter gönder, Shift+Enter satır atla)" rows="2"></textarea>
+            <button id="sendBtn" onclick="sendMessage()">Gönder ✨</button>
+        </div>
+    </div>
+
+    <div class="model-info" id="modelInfo">
+        <h3>📋 Model Bilgisi</h3>
+        <div id="modelDetails">
+            <div class="detail"><strong>Ad:</strong> <span id="infoName">-</span></div>
+            <div class="detail"><strong>Açıklama:</strong> <span id="infoDesc">-</span></div>
+            <div class="detail"><strong>Özellik:</strong> <span id="infoFeature">-</span></div>
+        </div>
+        <div class="stats">
+            ⚡ Hız sınırı: 40 istek/dk | 📊 Ücretsiz
+        </div>
+    </div>
+</div>
+
+<script>
+    let isStreaming = false;
+    let currentModel = document.getElementById('modelSelect').value;
+
+    // Model değişince bilgileri güncelle
+    document.getElementById('modelSelect').addEventListener('change', function() {
+        currentModel = this.value;
+        updateModelInfo();
+    });
+
+    function updateModelInfo() {
+        const select = document.getElementById('modelSelect');
+        const selected = select.options[select.selectedIndex];
+        // Model detaylarını almak için API'den çekebiliriz
+        fetch('/api/models')
+            .then(res => res.json())
+            .then(data => {
+                const model = data.models.find(m => m.id === currentModel);
+                if (model) {
+                    document.getElementById('infoName').textContent = model.name;
+                    document.getElementById('infoDesc').textContent = model.aciklama;
+                    document.getElementById('infoFeature').textContent = model.ozellik || '-';
+                }
+            });
+    }
+
+    // Enter tuşu ile gönder (Shift+Enter satır atlar)
+    document.getElementById('userInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    function clearChat() {
+        document.getElementById('messages').innerHTML = '';
+        const info = document.createElement('div');
+        info.className = 'message assistant';
+        info.innerHTML = `<div class="role">🤖 Asistan</div>
+                         <div class="content">Sohbet temizlendi. Yeni bir konuşmaya başlayabilirsiniz.</div>`;
+        document.getElementById('messages').appendChild(info);
+    }
+
+    function addMessage(role, content) {
+        const div = document.createElement('div');
+        div.className = `message ${role}`;
+        const roleText = role === 'user' ? '👤 Siz' : '🤖 Asistan';
+        div.innerHTML = `<div class="role">${roleText}</div><div class="content">${content}</div>`;
+        document.getElementById('messages').appendChild(div);
+        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    }
+
+    async function sendMessage() {
+        if (isStreaming) return;
+
+        const input = document.getElementById('userInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        // Kullanıcı mesajını ekle
+        addMessage('user', message);
+        input.value = '';
+        input.style.height = 'auto';
+
+        const sendBtn = document.getElementById('sendBtn');
+        sendBtn.disabled = true;
+        sendBtn.textContent = '⏳ Gönderiliyor...';
+        isStreaming = true;
+
+        const model = document.getElementById('modelSelect').value;
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        { role: 'user', content: message }
+                    ],
+                    stream: false,
+                    temperature: 0.7,
+                    max_tokens: 2048
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                addMessage('assistant', `❌ Hata: ${data.error}`);
+            } else if (data.choices && data.choices[0]) {
+                const content = data.choices[0].message.content;
+                addMessage('assistant', content);
+            } else {
+                addMessage('assistant', '❌ Beklenmeyen yanıt formatı');
+            }
+
+        } catch (error) {
+            addMessage('assistant', `❌ Bağlantı hatası: ${error.message}`);
+        }
+
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Gönder ✨';
+        isStreaming = false;
+        input.focus();
+    }
+
+    // İlk mesaj
+    window.onload = function() {
+        updateModelInfo();
+        addMessage('assistant', `👋 Merhaba! NVIDIA NIM ücretsiz API'sine hoş geldiniz.
+
+📌 **Kullanım İpuçları:**
+• Sağ taraftan model seçin
+• Kod, çeviri, özetleme gibi görevler yapabilirsiniz
+• Her modelin farklı güçlü yönleri var
+
+🔍 **Model Önerileri:**
+• **Kimi K2.6** → Kodlama ve uzun dokümanlar için
+• **Nemotron Omni** → Görüntü anlama için
+• **DeepSeek Flash** → Hızlı yanıt için
+
+Denemek istediğiniz modeli seçip mesajınızı yazın!`);
+    };
+</script>
+
+</body>
+</html>

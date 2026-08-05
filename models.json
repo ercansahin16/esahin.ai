@@ -1,0 +1,64 @@
+{
+  "modeller": [
+    {
+      "id": "moonshotai/kimi-k2.6",
+      "name": "Kimi K2.6",
+      "aciklama": "1T multimodal MoE - Kodlama ve aracı işlemler",
+      "ozellik": "Mükemmel kodlama, 262K bağlam"
+    },
+    {
+      "id": "deepseek-ai/deepseek-v4-flash",
+      "name": "DeepSeek V4 Flash",
+      "aciklama": "284B MoE - Hızlı kodlama ve aracı işlemler",
+      "ozellik": "Hızlı yanıt, 1M bağlam"
+    },
+    {
+      "id": "deepseek-ai/deepseek-v4-pro",
+      "name": "DeepSeek V4 Pro",
+      "aciklama": "MoE mimarili kodlama modeli",
+      "ozellik": "1M bağlam, yüksek kalite"
+    },
+    {
+      "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      "name": "Nemotron 3 Nano Omni",
+      "aciklama": "Görüntü/video/ses anlama + akıl yürütme",
+      "ozellik": "Multimodal, reasoning"
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "name": "Nemotron 3 Ultra",
+      "aciklama": "1M bağlam, aracı akıl yürütme",
+      "ozellik": "En güçlü NVIDIA modeli"
+    },
+    {
+      "id": "mistralai/mistral-medium-3.5-128b",
+      "name": "Mistral Medium 3.5",
+      "aciklama": "Dengeli performans, kodlama",
+      "ozellik": "Genel amaçlı"
+    },
+    {
+      "id": "google/diffusiongemma-26b-a4b-it",
+      "name": "Diffusion Gemma 26B",
+      "aciklama": "Difüzyon tabanlı LLM",
+      "ozellik": "Paralel token üretimi"
+    },
+    {
+      "id": "z-ai/glm-5.2",
+      "name": "GLM 5.2",
+      "aciklama": "Aracı iş akışları ve kodlama",
+      "ozellik": "Agentic AI"
+    },
+    {
+      "id": "minimaxai/minimax-m3",
+      "name": "MiniMax M3",
+      "aciklama": "Multimodal MoE, kodlama",
+      "ozellik": "Görüntü anlama"
+    },
+    {
+      "id": "nvidia/nemotron-3-embed-1b",
+      "name": "Nemotron 3 Embed 1B",
+      "aciklama": "Embedding model - RAG ve arama",
+      "ozellik": "Semantik arama"
+    }
+  ]
+}
